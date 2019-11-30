@@ -19,7 +19,7 @@ var pos = new map(Int32Array,pair);
 function euclid(a , b , c , d){
     var dx = c - a;
     var dy = d - b;
-    return math.sqrt((dx) * dx + dy * dy).toFixed(3);
+    return math.sqrt((dx) * dx + dy * dy).toFixed(4);
 }
  
 function manhattan(a, b, c, d){
@@ -65,24 +65,46 @@ app.post("/distance" , (req , res , next) => {
 });
 
 app.put("/robot/:id/position" , (request , response) => {
-    const id = parseInt(this.toString());
-    console.log(id);
+    const id = parseInt(request.params.id);
     var x = parseFloat(request.body.position.x);
     var y = parseFloat(request.body.position.y);
-    pos[id] = new pair(x , y);
-    response.status(204).end();
+    pos.set(id , new pair(x , y));
+    response.status(200).end();
 });
 
 app.get("/robot/:id/position" , (request , response) =>{
-    var x = parseInt(this.toString());
-    if(pos.get(x) === undefined){
+    const id = parseInt(request.params.id);
+    if(pos.get(id) == undefined){
         response.status(404).end();
         return;
     }
-    var px = pos[x].a;
-    var py = pos[x].b;
-    response.status(200).end();
-    response.json({position: {x: px , y: py}}).end();
+    var px = pos.get(id);
+    response.status(200);
+    response.json({position: {x: px.a , y: px.b}}).end();
+});
+
+app.post("/nearest" , (req , res , next) => {
+    var a = parseFloat(req.body.ref_position.x);
+    var b = parseFloat(req.body.ref_position.y);
+    var dist = -1;
+    var id = -1;
+    for (var [key,val] of pos) {
+        if(dist == -1){
+            dist = euclid(val.x, val.y, a, b)
+            id = key;
+        }
+        else if(euclid(val.x, val.y, a, b)<dist){
+            dist = euclid(val.x, val.y, a, b)
+            id = key;
+        }
+    }
+    var ans = [];
+    if(id==-1){
+        ans.push(id);
+    }
+    res.status(200);
+    res.json({robot_ids: ans}).end();
+    return;
 });
 
 module.exports = app;
