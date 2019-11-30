@@ -4,7 +4,8 @@
   "description": "Code Track Final Round",
   "main": "main.js",
   "scripts": {
-    "dev": "nodemon main.js"
+    "dev": "nodemon main.js",
+    "run": "node main.js"
   },
   "repository": "",
   "author": "",
