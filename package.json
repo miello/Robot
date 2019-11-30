@@ -4,8 +4,7 @@
   "description": "Code Track Final Round",
   "main": "main.js",
   "scripts": {
-    "dev": "nodemon main.js",
-    "run": "node main.js"
+    "dev": "nodemon main.js"
   },
   "repository": "",
   "author": "",
@@ -13,6 +12,7 @@
   "dependencies": {
     "body-parser": "^1.19.0",
     "express": "^4.17.1",
+    "hashmap": "^2.4.0",
     "json": "^9.0.6",
     "mathjs": "^6.2.5",
     "nodemon": "^2.0.1"
