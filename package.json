@@ -1,0 +1,19 @@
+{
+  "name": "techjam_final",
+  "version": "1.0.0",
+  "description": "Code Track Final Round",
+  "main": "main.js",
+  "scripts": {
+    "dev": "nodemon main.js"
+  },
+  "repository": "",
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "json": "^9.0.6",
+    "mathjs": "^6.2.5",
+    "nodemon": "^2.0.1"
+  }
+}
