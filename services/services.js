@@ -19,7 +19,7 @@ var pos = new map(Int32Array,pair);
 function euclid(a , b , c , d){
     var dx = c - a;
     var dy = d - b;
-    return math.sqrt((dx) * dx + dy * dy).toFixed(4);
+    return parseFloat(math.sqrt(dx * dx + dy * dy).toFixed(4));
 }
  
 function manhattan(a, b, c, d){
@@ -31,8 +31,8 @@ app.post("/distance" , (req , res , next) => {
 //first pos
     try {
         var tmp = req.body.first_pos.toString().split("#");
-        a = pos[tmp[1]].x;
-        b = pos[tmp[1]].y;
+        a = pos[tmp[1]].a;
+        b = pos[tmp[1]].b;
     } catch (e) {
         a = parseFloat(req.body.first_pos.x);
         b = parseFloat(req.body.first_pos.y);
@@ -40,11 +40,11 @@ app.post("/distance" , (req , res , next) => {
 //second pos
     try {
         var tmp = req.body.second_pos.toString().split("#");
-        c = pos[tmp[1]].x;
-        d = pos[tmp[1]].y;
+        c = pos[tmp[1]].a;
+        d = pos[tmp[1]].b;
     } catch (e) {
-        c = parseFloat(req.body.second_pos.x);
-        d = parseFloat(req.body.second_pos.y);
+        c = parseFloat(req.body.second_pos.x.toString());
+        d = parseFloat(req.body.second_pos.y.toString());
     }
     var type = "euclidean";
     try {
@@ -60,6 +60,7 @@ app.post("/distance" , (req , res , next) => {
         res.status(400).end();
         return;
     }
+    // console.log(typeof p);
     res.status(200);
     res.json({distance: p}).end();
 });
@@ -69,7 +70,7 @@ app.put("/robot/:id/position" , (request , response) => {
     var x = parseFloat(request.body.position.x);
     var y = parseFloat(request.body.position.y);
     pos.set(id , new pair(x , y));
-    response.status(200).end();
+    response.status(204).end();
 });
 
 app.get("/robot/:id/position" , (request , response) =>{
@@ -88,22 +89,55 @@ app.post("/nearest" , (req , res , next) => {
     var b = parseFloat(req.body.ref_position.y);
     var dist = -1;
     var id = -1;
-    for (var [key,val] of pos) {
+    for (var pair of pos) {
+        var l = parseFloat(pair.value.x);
+        var r = parseFloat(pair.value.y);
+        // console.log(l , r);
+        var pl = euclid(l , r , a , b);
         if(dist == -1){
-            dist = euclid(val.x, val.y, a, b)
-            id = key;
+            dist = pl;
+            id = pair.key;
         }
-        else if(euclid(val.x, val.y, a, b)<dist){
-            dist = euclid(val.x, val.y, a, b)
-            id = key;
+        else if(pl < dist){
+            dist = pl;
+            id = pair.key;
         }
     }
     var ans = [];
-    if(id==-1){
+    if(id != -1){
         ans.push(id);
     }
     res.status(200);
     res.json({robot_ids: ans}).end();
+    return;
+});
+
+app.post("/closestpair", (req, res, nest) =>{
+    var x = [];
+    var y = [];
+    for(var[key,val] of pos){
+        x.push(val.x);
+        y.push(val.y);
+    }
+    var dist = -1;
+    for(i = 0 ; i < x.length ; i++){
+        for(j = i + 1 ; j < x.length ; j++){
+            if(dist == -1){
+                dist = euclid(x[i], y[i], x[j], y[j]);
+            }
+            else{
+                if(euclid(x[i], y[i], x[j], y[j]) < dist){
+                    dist = euclid(x[i] , y[i] , x[j] , y[j]);
+                }
+            }
+        }
+    }
+    if(dist == -1){
+        res.status(424);
+        return;
+    }
+    res.status(200);
+    res.json({distance: dist}).end();
     return;
 });
 
